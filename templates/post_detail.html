@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <link href="{% static 'css/post_detail.css' %}" rel="stylesheet">
+    <div class="post-entry">
+        <h2>{{ post.title }}</h2>
+        <p>{{ post.body|urlize }}</p>
+    </div>
+
+    <p><a href="{% url 'post_edit' post.pk %}">+ Edit Blog Post</a></p>
+    <p><a href="{% url 'post_delete' post.pk %}">+ Delete Blog Post</a></p>
+    {% if post.header_image %}
+        <p><img src="{{post.header_image.url}}"></p>
+    {% else %}
+        <p></p>
+    {% endif %}
+
+
+    {% for comm in post.commentpost_set.all%}
+        {{ comm.user }} <br>
+        {{ comm.text }} <br><br>
+    {% endfor %}
+
+    <br>
+    <hr>
+    <h2>Comments...</h2>
+
+    {% if not post.comments.all %}
+        No Comments Yet...<a href="{% url 'post_comment' post.pk %}">
+        Add Comment</a>
+    {% else %}
+
+    <form method="post">
+        {% csrf_token %}
+        {{ comment_form.as_p }}
+        {% if request.user.is_authenticated %}
+            <a href="{% url 'post_comment' post.pk %}">Add Comment</a><br><br>
+        {% else %}
+            <a href="">Add Comment</a><br><br>
+        {% endif %}
+    </form>
+
+        {% for comment in post.comments.all %}
+            <strong>
+                {{ comment.name }} -
+                {{ comment.date_added }}
+            </strong>
+            <br>
+            {{ comment.body }}
+            <br><br>
+
+        {% endfor %}
+    {% endif %}
+
+
+
+{% endblock content %}
